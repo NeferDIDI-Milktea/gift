@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4f46e5">
+<meta name="description" content="اسحب التذكرة لأعلى واحصل على هديتك - خصم أو مشروب إضافي">
+<title>تذكرة الهدايا 🎁</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #eef0f4;
+    --card: #ffffff;
+    --text: #14171f;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --accent: #5b5bd6;
+    --accent-soft: #eef0ff;
+    --border: #eceef4;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, var(--bg) 60%);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ===== الكارت ===== */
+  .card {
+    width: min(370px, 100%);
+    background: var(--card);
+    border-radius: 26px;
+    padding: 26px 22px 22px;
+    box-shadow:
+      0 1px 2px rgba(16, 24, 40, .04),
+      0 18px 48px -16px rgba(16, 24, 40, .22);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin: 14px 0 6px;
+  }
+
+  .head p {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ===== منطقة السحب ===== */
+  .stage {
+    position: relative;
+    margin-top: 20px;
+    height: 250px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #f7f8fb;
+    border: 1px solid var(--border);
+  }
+
+  .prize {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 22px;
+    text-align: center;
+  }
+
+  .p-icon { font-size: 40px; line-height: 1; }
+
+  .p-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--text);
+  }
+
+  .p-sub { font-size: 13px; color: var(--muted); }
+
+  .p-code {
+    margin-top: 10px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px dashed #c7c9f5;
+    padding: 8px 16px;
+    border-radius: 10px;
+  }
+
+  .pop { animation: pop .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(.82); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ===== الغطاء القابل للسحب ===== */
+  .cover {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%);
+    transition: transform .6s cubic-bezier(.22, 1, .36, 1);
+    touch-action: none;
+    cursor: grab;
+    will-change: transform;
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.22), transparent 65%);
+    pointer-events: none;
+  }
+
+  .cover.dragging {
+    cursor: grabbing;
+    transition: none;
+  }
+
+  .handle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .handle .circle {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: float 1.8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+
+  .handle .label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    opacity: .95;
+  }
+
+  .foot {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  /* ===== Reduced Motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .handle .circle { animation: none; }
+    .cover { transition: transform .3s ease; }
+    .pop { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <main class="card">
+    <div class="head">
+      <span class="badge">🎁 هدية</span>
+      <h1>تذكرة الهدايا</h1>
+      <p>اسحب التذكرة لأعلى لتعرف هديتك</p>
+    </div>
+
+    <div class="stage">
+      <div class="prize" id="prize" aria-live="polite"></div>
+
+      <div class="cover" id="cover" role="button" tabindex="0"
+           aria-label="اسحب التذكرة لأعلى لكشف الهدية">
+        <div class="handle">
+          <div class="circle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </div>
+          <div class="label">اسحب لأعلى</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot" id="foot">هدية واحدة لكل مستخدم</div>
+  </main>
+
+<script>
+  /* ==========================================================
+     🎁 الجوائز — عدّل هنا بحرية
+     ========================================================== */
+  const PRIZES = [
+    { kind: 'discount', amount: 10 },
+    { kind: 'discount', amount: 15 },
+    { kind: 'discount', amount: 20 },
+    { kind: 'discount', amount: 25 },
+    { kind: 'discount', amount: 30 },
+    { kind: 'drink' }
+  ];
+
+  /* مفتاح التخزين — غيّره لو عايز تصفّر كل المستخدمين */
+  const STORAGE_KEY = 'gift_ticket_v1';
+
+  /* ===== عناصر الواجهة ===== */
+  const cover   = document.getElementById('cover');
+  const prizeEl = document.getElementById('prize');
+  const foot    = document.getElementById('foot');
+
+  /* ==========================================================
+     حالة المستخدم
+     ========================================================== */
+  function getSaved() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+    catch { return null; }
+  }
+
+  function savePrize(p) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+  }
+
+  let used = getSaved();
+
+  /* ==========================================================
+     بناء محتوى الجائزة
+     ========================================================== */
+  function prizeHTML(p) {
+    if (p.kind === 'drink') {
+      return `
+        <div class="p-icon">🥤</div>
+        <div class="p-title">مشروب إضافي</div>
+        <div class="p-sub">مشروب مجاني مع طلبك</div>
+        <div class="p-code">FREE-DRINK</div>`;
+    }
+    return `
+      <div class="p-icon">💸</div>
+      <div class="p-title">خصم ${p.amount}%</div>
+      <div class="p-sub">على إجمالي طلبك</div>
+      <div class="p-code">SAVE${p.amount}</div>`;
+  }
+
+  /* ==========================================================
+     لو المستخدم استخدم هديته قبل كده
+     ========================================================== */
+  function showUsedState() {
+    prizeEl.innerHTML = prizeHTML(used);
+    cover.style.transition = 'none';
+    cover.style.transform  = 'translateY(-100%)';
+    cover.style.cursor     = 'default';
+    cover.style.pointerEvents = 'none';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      cover.style.transition = '';
+    }));
+    foot.textContent = 'استخدمت هديتك بالفعل ✨';
+  }
+
+  if (used) showUsedState();
+
+  /* ==========================================================
+     منطق السحب
+     ========================================================== */
+  let dragging = false;
+  let startY   = 0;
+  let currentY = 0;
+  const THRESHOLD = -60; // أقل مسافة سحب لكشف الهدية
+
+  cover.addEventListener('pointerdown', (e) => {
+    if (used) return;
+    e.preventDefault();
+    dragging = true;
+    startY = e.clientY;
+    cover.classList.add('dragging');
+    cover.setPointerCapture(e.pointerId);
+  });
+
+  cover.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dy = Math.min(0, e.clientY - startY); // لفوق فقط
+    currentY = dy;
+    cover.style.transform = `translateY(${dy}px)`;
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    cover.classList.remove('dragging');
+
+    if (currentY < THRESHOLD) {
+      reveal();
+    } else {
+      cover.style.transform = 'translateY(0)';
+    }
+    currentY = 0;
+  }
+
+  cover.addEventListener('pointerup', endDrag);
+  cover.addEventListener('pointercancel', endDrag);
+  cover.addEventListener('pointerleave', endDrag);
+
+  /* دعم الكيبورد (Enter / Space) */
+  cover.addEventListener('keydown', (e) => {
+    if (used) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      reveal();
+    }
+  });
+
+  /* ==========================================================
+     كشف الهدية
+     ========================================================== */
+  function reveal() {
+    if (used) return;
+
+    const p = PRIZES[Math.floor(Math.random() * PRIZES.length)];
+    used = p;
+    savePrize(p);
+
+    prizeEl.innerHTML = prizeHTML(p);
+    prizeEl.classList.add('pop');
+    setTimeout(() => prizeEl.classList.remove('pop'), 500);
+
+    cover.style.transform = 'translateY(-100%)';
+    cover.style.cursor = 'default';
+    foot.textContent = 'استخدمت هديتك بالفعل ✨';
+  }
+</script>
+</body>
+</html>
